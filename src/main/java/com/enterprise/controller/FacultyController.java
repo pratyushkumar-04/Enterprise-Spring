@@ -1,0 +1,85 @@
+package com.enterprise.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.enterprise.dto.request.FacultyRequest;
+import com.enterprise.dto.request.FacultySubjectAssignRequest;
+import com.enterprise.dto.response.FacultyResponse;
+import com.enterprise.entity.FacultySubject;
+import com.enterprise.enums.FacultyStatus;
+import com.enterprise.service.FacultyService;
+
+@RestController
+@RequestMapping("/faculty")
+public class FacultyController {
+
+	@Autowired
+	private FacultyService facultyService;
+	
+	@PostMapping
+	private ResponseEntity<?> addFaculty(@RequestBody FacultyRequest facultyreq){
+		try {
+			return ResponseEntity.ok(facultyService.addFaculty(facultyreq));
+		}
+		catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping
+	private ResponseEntity<List<FacultyResponse>> getAllFaculties(){
+		return ResponseEntity.ok(facultyService.getAllFaculties());
+	}
+	
+	@GetMapping("/{Id}")
+	private ResponseEntity<?> getFacultyById(@PathVariable String Id){
+		try {
+			return ResponseEntity.ok(facultyService.getFacultyById(Id));
+		}
+		catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/department/{deptId}")
+	private ResponseEntity<?> getFacultiesByDept(@PathVariable String deptId){
+		try {
+			return ResponseEntity.ok(facultyService.getFacultyByDept(deptId));
+		}
+		catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PatchMapping("/status/{Id}")
+	private ResponseEntity<?> changeStatus(@PathVariable String Id,@RequestBody FacultyStatus status){
+		try {
+			return ResponseEntity.ok(facultyService.changeStatus(Id, status));
+		}
+		catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/assign-subject")
+	private ResponseEntity<?> assignSubject(@RequestBody FacultySubjectAssignRequest subjectReq){
+		try {
+			return ResponseEntity.ok(facultyService.assignSubject(subjectReq));
+		}
+		catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+}
