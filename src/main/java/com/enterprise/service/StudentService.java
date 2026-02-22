@@ -2,6 +2,7 @@ package com.enterprise.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.RollNumrequest;
@@ -10,9 +11,14 @@ import com.enterprise.dto.request.StudentRequest;
 import com.enterprise.dto.response.StudentResponse;
 import com.enterprise.enums.StudentStatus;
 
+@Service
 public interface StudentService {
 
-	StudentResponse addStudent(StudentRequest student,MultipartFile image);
+	StudentResponse addStudent( StudentRequest studentReq,
+	        MultipartFile image,
+	        MultipartFile adhaar,
+	        MultipartFile tenth,
+	        MultipartFile twelfth);
 	List<StudentResponse> getAllstudents();
 	StudentResponse getStudentById(String Id);
 	StudentResponse getStudentByAdmnum(String admnum);

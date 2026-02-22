@@ -1,10 +1,11 @@
 package com.enterprise.controller;
 
-import java.net.ResponseCache;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,25 +20,27 @@ import com.enterprise.service.SectionService;
 @RequestMapping("/section")
 public class SectionController {
 
-	@Autowired 
+	@Autowired
 	private SectionService sectionSer;
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
-	private ResponseEntity<?> addSection(@RequestBody SectionRequest req){
+	private ResponseEntity<?> addSection(@RequestBody SectionRequest req) {
 		try {
 			return ResponseEntity.ok(sectionSer.createSection(req));
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
-	
+
+	@PreAuthorize("permitAll()")
 	@GetMapping("/branchsem")
-	private ResponseEntity<?> getSections(@RequestParam String branchId,@RequestParam Integer semester){
+	public ResponseEntity<?> getSections(@RequestParam String branchId, @RequestParam Integer semester) {
 		try {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			System.out.println("Authorities: " + auth.getAuthorities());
 			return ResponseEntity.ok(sectionSer.getSectionsByBranchSem(branchId, semester));
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}

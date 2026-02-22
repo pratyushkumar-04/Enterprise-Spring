@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.enterprise.dto.request.FacultyRequest;
 import com.enterprise.dto.request.FacultySubjectAssignRequest;
 import com.enterprise.dto.response.FacultyResponse;
-import com.enterprise.entity.FacultySubject;
 import com.enterprise.enums.FacultyStatus;
 import com.enterprise.service.FacultyService;
 
@@ -28,6 +27,7 @@ public class FacultyController {
 	@Autowired
 	private FacultyService facultyService;
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	private ResponseEntity<?> addFaculty(@RequestBody FacultyRequest facultyreq){
 		try {
@@ -37,7 +37,7 @@ public class FacultyController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
-	
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	private ResponseEntity<List<FacultyResponse>> getAllFaculties(){
 		return ResponseEntity.ok(facultyService.getAllFaculties());
@@ -73,6 +73,7 @@ public class FacultyController {
 		}
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/assign-subject")
 	private ResponseEntity<?> assignSubject(@RequestBody FacultySubjectAssignRequest subjectReq){
 		try {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.enterprise.dto.request.AttendanceSessionRequest;
 import com.enterprise.dto.request.MarkAttendanceRequest;
 import com.enterprise.dto.response.AttendanceStudentResponse;
-import com.enterprise.dto.response.AttendanceSubjectWiseResponse;
 import com.enterprise.dto.response.SubjectAttendanceDetailResponse;
 import com.enterprise.service.AttendanceService;
 
@@ -29,6 +29,7 @@ public class AttendanceController {
 	// Create attendance Sessions (Faculty does this when he/she clicks over any 
 				//day to mark attendance this endpoint will be called )
 	
+	@PreAuthorize("hasRole('FACULTY')")
 	@PostMapping("/session")
 	private ResponseEntity<?> createSession(@RequestBody AttendanceSessionRequest req) {
 		try {
@@ -43,6 +44,7 @@ public class AttendanceController {
 	// also used when a marked session is opened by a faculty to edit or just see which students are marked or not 
 	// will be helpful while editing attendance
 	
+	@PreAuthorize("hasRole('FACULTY')")
 	@GetMapping("{sessionId}/students")
 	public ResponseEntity<List<AttendanceStudentResponse>> getStudentsForAttendance(@PathVariable String sessionId) {
 
@@ -53,6 +55,7 @@ public class AttendanceController {
 	//marks attendance from the ui over the list displayed from above endpoint and here the studebt id will be used to mark 
 	//present or absent 
 
+	@PreAuthorize("hasRole('FACULTY')")
 	@PostMapping("/mark")
 	private ResponseEntity<?> markAttendance(@RequestBody MarkAttendanceRequest req) {
 		try {
@@ -70,6 +73,8 @@ public class AttendanceController {
 	
 	// enter student id and you will get list of all subjects you are enrolled to with
 	// attendance details in each subject present, absent, Percentage 
+	
+	@PreAuthorize("hasAnyRole('FACULTY','ADMIN','STUDENT')")
 	@GetMapping("/subject-wise/{studentId}")
 	public ResponseEntity<?> getSubjectSummary(@PathVariable String studentId) {
 		try {
@@ -80,7 +85,10 @@ public class AttendanceController {
 	}
 	
 	// used to get attendance of a particular student of a particular subject 
-	// will be used when we want to check detailed response over a particular subject regarding which day i was present or absent 
+	// will be used when we want to check detailed response over a particular subject 
+	//regarding which day i was present or absent 
+	
+	@PreAuthorize("hasAnyRole('FACULTY','ADMIN','STUDENT')")
 	@GetMapping("/subject/{subjectId}/detail/{studentId}")
 	public ResponseEntity<SubjectAttendanceDetailResponse> getSubjectDetail(@PathVariable String subjectId,
 			@PathVariable String studentId) {

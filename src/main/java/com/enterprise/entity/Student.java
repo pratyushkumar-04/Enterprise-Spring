@@ -61,6 +61,9 @@ public class Student {
     private Branch branch;
     
     private String imgPath;
+    private String adhaarPath;
+	private String tenthPath;
+	private String twelthPath;
 
 	public String getImgPath() {
 		return imgPath;
@@ -206,7 +209,32 @@ public class Student {
 	public void setSection(Section section) {
 		this.section = section;
 	}
-	
+
+	public String getAdhaarPath() {
+		return adhaarPath;
+	}
+
+	public void setAdhaarPath(String adhaarPath) {
+		this.adhaarPath = adhaarPath;
+	}
+
+	public String getTenthPath() {
+		return tenthPath;
+	}
+
+	public void setTenthPath(String tenthPath) {
+		this.tenthPath = tenthPath;
+	}
+
+	public String getTwelthPath() {
+		return twelthPath;
+	}
+
+	public void setTwelthPath(String twelthPath) {
+		this.twelthPath = twelthPath;
+	}
+
+
 	
     
     

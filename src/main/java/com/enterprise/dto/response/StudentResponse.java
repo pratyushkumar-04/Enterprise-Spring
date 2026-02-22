@@ -31,6 +31,35 @@ public class StudentResponse {
     private String sectionname;
 
     private String profileImagePath;
+    private String adhaarpath;
+    private String tenthMarksheet;
+    private String twelthMarksheet;
+    
+    
+
+	public String getAdhaarpath() {
+		return adhaarpath;
+	}
+
+	public void setAdhaarpath(String adhaarpath) {
+		this.adhaarpath = adhaarpath;
+	}
+
+	public String getTenthMarksheet() {
+		return tenthMarksheet;
+	}
+
+	public void setTenthMarksheet(String tenthMarksheet) {
+		this.tenthMarksheet = tenthMarksheet;
+	}
+
+	public String getTwelthMarksheet() {
+		return twelthMarksheet;
+	}
+
+	public void setTwelthMarksheet(String twelthMarksheet) {
+		this.twelthMarksheet = twelthMarksheet;
+	}
 
 	public String getId() {
 		return id;

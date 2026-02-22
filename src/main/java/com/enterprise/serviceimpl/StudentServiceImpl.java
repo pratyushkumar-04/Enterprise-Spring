@@ -64,11 +64,11 @@ public class StudentServiceImpl implements StudentService {
 	StudentServiceImpl(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
 	}
-	
+
 	private void validateSectionBranch(Section section, Branch branch) {
-	    if (!Objects.equals(section.getBranch().getId(), branch.getId())) {
-	        throw new RuntimeException("The selected Section does not belong to the selected Branch");
-	    }
+		if (!Objects.equals(section.getBranch().getId(), branch.getId())) {
+			throw new RuntimeException("The selected Section does not belong to the selected Branch");
+		}
 	}
 
 	private StudentResponse mapToResponse(Student student) {
@@ -88,12 +88,16 @@ public class StudentServiceImpl implements StudentService {
 		studResp.setName(student.getName());
 		studResp.setPhone(student.getPhone());
 		studResp.setProfileImagePath(student.getImgPath());
+		studResp.setAdhaarpath(student.getAdhaarPath());
+		studResp.setTenthMarksheet(student.getTenthPath());
+		studResp.setTwelthMarksheet(student.getTwelthPath());
 		studResp.setStatus(student.getStatus());
 		studResp.setSectionname(student.getSection().getName());
 
 		return studResp;
 	}
 
+	// unused for new logic 
 	private String saveStudentImage(MultipartFile image, String username) {
 
 		try {
@@ -113,6 +117,24 @@ public class StudentServiceImpl implements StudentService {
 		}
 	}
 
+	private String saveFile(MultipartFile file, String folderPath, String fileType) {
+
+		try {
+			String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+
+			String fileName = fileType + extension;
+
+			Path filePath = Paths.get(folderPath + fileName);
+
+			Files.write(filePath, file.getBytes());
+
+			return folderPath + fileName;
+
+		} catch (IOException e) {
+			throw new RuntimeException(fileType + " upload failed", e);
+		}
+	}
+
 	private String generateAdmissionNumber(String branchCode) {
 		String year = String.valueOf(LocalDate.now().getYear());
 		String prefix = year + "_" + branchCode + "_";
@@ -127,7 +149,11 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public StudentResponse addStudent(StudentRequest studentReq, MultipartFile image) {
+	public StudentResponse addStudent( StudentRequest studentReq,
+	        MultipartFile image,
+	        MultipartFile adhaar,
+	        MultipartFile tenth,
+	        MultipartFile twelfth) {
 		Department dept = deptRepo.findById(studentReq.getDepartmentId())
 				.orElseThrow(() -> new RuntimeException("No such Department Found"));
 		Course course = courseRepo.findById(studentReq.getCourseId())
@@ -135,11 +161,11 @@ public class StudentServiceImpl implements StudentService {
 		Branch branch = branchRepo.findById(studentReq.getBranchId())
 				.orElseThrow(() -> new RuntimeException("No Such Branch Found"));
 		Section section = sectionRepo.findById(studentReq.getSectionId())
-				.orElseThrow(()-> new RuntimeException("No Such Section Exists"));
+				.orElseThrow(() -> new RuntimeException("No Such Section Exists"));
 		Student student = new Student();
-		
+
 		validateSectionBranch(section, branch);
-		
+
 		student.setBranch(branch);
 		student.setCourse(course);
 		student.setCurrentSemester(studentReq.getCurrentSemester());
@@ -152,17 +178,46 @@ public class StudentServiceImpl implements StudentService {
 		student.setName(studentReq.getName());
 		student.setPhone(studentReq.getPhone());
 		student.setStatus(StudentStatus.ACTIVE);
-		student.setAdmissionNumber(generateAdmissionNumber(branch.getCode()));
+
+		String admissionNum = generateAdmissionNumber(branch.getCode());
+//		student.setAdmissionNumber(generateAdmissionNumber(branch.getCode()));
+		student.setAdmissionNumber(admissionNum);
 		student.setAdmissionYear(studentReq.getAdmissionYear());
 		student.setSection(section);
 
 		Student savedStud = studentRepo.save(student);
 
-		if (image != null && !image.isEmpty()) {
-			String path = saveStudentImage(image, savedStud.getAdmissionNumber());
-			savedStud.setImgPath(path);
-			studentRepo.save(savedStud);
+		// new Section
+		String studentFolder = uploadDir + admissionNum + "/";
+		try {
+			Files.createDirectories(Paths.get(studentFolder));
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create student folder", e);
 		}
+
+//		if (image != null && !image.isEmpty()) {
+//			String path = saveStudentImage(image, savedStud.getAdmissionNumber());
+//			savedStud.setImgPath(path);
+//			studentRepo.save(savedStud);
+//		}
+		
+		if(image != null && !image.isEmpty()) {
+			String imgpath = saveFile(image, studentFolder, "image");
+			savedStud.setImgPath(imgpath);
+		}
+		if (adhaar != null && !adhaar.isEmpty()) {
+	        savedStud.setAdhaarPath(saveFile(adhaar, studentFolder, "adhaar"));
+	    }
+
+	    if (tenth != null && !tenth.isEmpty()) {
+	        savedStud.setTenthPath(saveFile(tenth, studentFolder, "10thMarksheet"));
+	    }
+
+	    if (twelfth != null && !twelfth.isEmpty()) {
+	        savedStud.setTwelthPath(saveFile(twelfth, studentFolder, "12thMarksheet"));
+	    }
+	    
+	    studentRepo.save(savedStud);
 
 		StudentAddress studAddress = new StudentAddress();
 		studAddress.setAddressLine1(studentReq.getAddress().getAddressLine1());
@@ -171,7 +226,7 @@ public class StudentServiceImpl implements StudentService {
 		studAddress.setPincode(studentReq.getAddress().getPincode());
 		studAddress.setState(studentReq.getAddress().getState());
 		studAddress.setStudent(savedStud);
-		
+
 		addressRepo.save(studAddress);
 
 		User us = new User();
@@ -196,50 +251,44 @@ public class StudentServiceImpl implements StudentService {
 
 	@Override
 	public StudentResponse getStudentById(String Id) {
-		Student student=studentRepo.findById(Id)
-				.orElseThrow(()->new RuntimeException("No such student exists"));
+		Student student = studentRepo.findById(Id).orElseThrow(() -> new RuntimeException("No such student exists"));
 		return mapToResponse(student);
 	}
-		
 
 	@Override
 	public StudentResponse getStudentByAdmnum(String admnum) {
-		Student student=studentRepo.findByAdmissionNumber(admnum)
-				.orElseThrow(()->new RuntimeException("No such student exists"));
+		Student student = studentRepo.findByAdmissionNumber(admnum)
+				.orElseThrow(() -> new RuntimeException("No such student exists"));
 		return mapToResponse(student);
 	}
 
 	@Override
 	public List<StudentResponse> getStudentsByBranch(String branchId) {
-		List<Student> students=studentRepo.findByBranchId(branchId);
-		return students.stream().
-				map(student->{
-					return mapToResponse(student);
-				}).toList();
+		List<Student> students = studentRepo.findByBranchId(branchId);
+		return students.stream().map(student -> {
+			return mapToResponse(student);
+		}).toList();
 	}
 
 	@Override
 	public List<StudentResponse> getStudentBySem(Integer semester) {
-		List<Student> students=studentRepo.findByCurrentSemester(semester);
-		return students.stream().
-				map(student->{
-					return mapToResponse(student);
-				}).toList();
+		List<Student> students = studentRepo.findByCurrentSemester(semester);
+		return students.stream().map(student -> {
+			return mapToResponse(student);
+		}).toList();
 	}
 
 	@Override
 	public List<StudentResponse> getStudentByStatus(StudentStatus status) {
-		List<Student> students=studentRepo.findByStatus(status);
-		return students.stream().
-				map(student->{
-					return mapToResponse(student);
-				}).toList();
+		List<Student> students = studentRepo.findByStatus(status);
+		return students.stream().map(student -> {
+			return mapToResponse(student);
+		}).toList();
 	}
 
 	@Override
-	public StudentResponse modifyStatus(String Id,StudentStatus status) {
-		Student student =studentRepo.findById(Id)
-				.orElseThrow(()-> new RuntimeException("No Student Found"));
+	public StudentResponse modifyStatus(String Id, StudentStatus status) {
+		Student student = studentRepo.findById(Id).orElseThrow(() -> new RuntimeException("No Student Found"));
 		student.setStatus(status);
 		Student savedstud = studentRepo.save(student);
 		return mapToResponse(savedstud);
@@ -247,17 +296,15 @@ public class StudentServiceImpl implements StudentService {
 
 	@Override
 	public StudentResponse promotion(String Id) {
-		Student student =studentRepo.findById(Id)
-				.orElseThrow(()-> new RuntimeException("No Student Found"));
-		student.setCurrentSemester(student.getCurrentSemester()+1);
+		Student student = studentRepo.findById(Id).orElseThrow(() -> new RuntimeException("No Student Found"));
+		student.setCurrentSemester(student.getCurrentSemester() + 1);
 		Student savedstud = studentRepo.save(student);
 		return mapToResponse(savedstud);
 	}
 
 	@Override
-	public StudentResponse edit(String Id,StudentRequest studentReq) {
-		Student student =studentRepo.findById(Id)
-				.orElseThrow(()-> new RuntimeException("No Such Student Exists"));
+	public StudentResponse edit(String Id, StudentRequest studentReq) {
+		Student student = studentRepo.findById(Id).orElseThrow(() -> new RuntimeException("No Such Student Exists"));
 		Department dept = deptRepo.findById(studentReq.getDepartmentId())
 				.orElseThrow(() -> new RuntimeException("No such Department Found"));
 		Course course = courseRepo.findById(studentReq.getCourseId())
@@ -276,16 +323,15 @@ public class StudentServiceImpl implements StudentService {
 		student.setName(studentReq.getName());
 		student.setPhone(studentReq.getPhone());
 		student.setAdmissionYear(student.getAdmissionYear());
-		
-		Student Savedstud=studentRepo.save(student);
-		return mapToResponse(Savedstud);	
+
+		Student Savedstud = studentRepo.save(student);
+		return mapToResponse(Savedstud);
 	}
 
 	@Override
 	public void assignRoll(String Id, RollNumrequest req) {
-		Student student =studentRepo.findById(Id)
-				.orElseThrow(()-> new RuntimeException("No Such Student Exists"));
-		
+		Student student = studentRepo.findById(Id).orElseThrow(() -> new RuntimeException("No Such Student Exists"));
+
 		student.setRollNumber(req.getRollnum());
 		studentRepo.save(student);
 	}
@@ -293,13 +339,13 @@ public class StudentServiceImpl implements StudentService {
 	@Transactional
 	@Override
 	public void assignSection(String Id, SectionAssignRequest sec) {
-		Student student =studentRepo.findById(Id.trim())
-				.orElseThrow(()-> new RuntimeException("No Such Student Exists"));
-		
+		Student student = studentRepo.findById(Id.trim())
+				.orElseThrow(() -> new RuntimeException("No Such Student Exists"));
+
 		Section section = sectionRepo.findById(sec.getSectionId())
-				.orElseThrow(()-> new RuntimeException("No Such Section Exists"));
+				.orElseThrow(() -> new RuntimeException("No Such Section Exists"));
 		student.setSection(section);
 		studentRepo.save(student);
-		
+
 	}
 }
