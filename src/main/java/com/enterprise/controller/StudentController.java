@@ -171,6 +171,14 @@ public class StudentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
+	
+	// Bulk Roll number Asssignment
+	@PatchMapping("/sections/{sectionId}/generate-roll-numbers")
+	public ResponseEntity<?> generateRollNumbers(@PathVariable String sectionId) {
+	    studService.generateRollNumbersForSection(sectionId);
+	    return ResponseEntity.ok("Roll numbers generated successfully");
+	}
+	
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/{id}/section")
@@ -181,6 +189,15 @@ public class StudentController {
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
+	}
+	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
+	@GetMapping("/section/{sectionId}")
+	public ResponseEntity<List<StudentResponse>> getStudentsBySection(
+	        @PathVariable String sectionId) {
+
+	    List<StudentResponse> students = studService.getStudentsBySection(sectionId);
+
+	    return ResponseEntity.ok(students);
 	}
 	
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")

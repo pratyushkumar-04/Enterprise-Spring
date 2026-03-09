@@ -58,4 +58,10 @@ public class SectionServiceImpl implements SectionService{
 		}).toList();
 	}
 
+	@Override
+	public List<Section> getAllSections() {
+		List<Section> sections = sectionRepo.findAll();
+		return sections;
+	}
+
 }

@@ -30,5 +30,6 @@ public interface StudentService {
 	StudentResponse edit(String Id,StudentRequest sreq);
 	void assignRoll(String Id,RollNumrequest req);
 	void assignSection(String Id,SectionAssignRequest sec);
-	
+	void generateRollNumbersForSection(String sectionId);
+	List<StudentResponse> getStudentsBySection(String sectionId);
 }

@@ -348,4 +348,32 @@ public class StudentServiceImpl implements StudentService {
 		studentRepo.save(student);
 
 	}
+
+	@Override
+	@Transactional
+	public void generateRollNumbersForSection(String sectionId) {
+		  List<Student> students = studentRepo
+		            .findBySectionIdOrderByAdmissionNumberAsc(sectionId);
+
+		    if (students.isEmpty()) {
+		        throw new RuntimeException("No students found in this section");
+		    }
+
+		    int rollNumber = 1;
+
+		    for (Student student : students) {
+		        student.setRollNumber(rollNumber++);
+		    }
+
+		    studentRepo.saveAll(students);
+		
+	}
+
+	@Override
+	public List<StudentResponse> getStudentsBySection(String sectionId) {
+		List<Student> students = studentRepo.findBySection_IdOrderByRollNumberAsc(sectionId);
+		return students.stream().map(student -> {
+			return mapToResponse(student);
+		}).toList();
+	}
 }

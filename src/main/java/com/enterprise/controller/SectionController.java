@@ -32,6 +32,17 @@ public class SectionController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping
+	public ResponseEntity<?> getAllSections(){
+		try {
+			return ResponseEntity.ok(sectionSer.getAllSections());
+		}
+		catch(Exception e){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
 
 	@PreAuthorize("permitAll()")
 	@GetMapping("/branchsem")

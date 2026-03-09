@@ -17,6 +17,7 @@ public interface StudentRepository extends JpaRepository<Student, String>{
     List<Student> findByCurrentSemester(Integer currentSemester);
     List<Student> findByStatus(StudentStatus status);
     List<Student> findBySection_IdOrderByRollNumberAsc(String sectionId);
+    List<Student> findBySectionIdOrderByAdmissionNumberAsc(String sectionId);
 
 
 
