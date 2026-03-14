@@ -14,4 +14,5 @@ public interface BranchService {
 
 	BranchResponse addbranch(BranchRequest br);
 	List<BranchResponse> getBranchByCourseId(String courseId);
+	BranchResponse editBranch(String id,BranchRequest req);
 }

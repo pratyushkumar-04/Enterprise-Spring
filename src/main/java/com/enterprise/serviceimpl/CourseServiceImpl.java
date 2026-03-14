@@ -57,4 +57,25 @@ public class CourseServiceImpl implements CourseService{
 		return dept.getCourses();
 	}
 
+	@Override
+	public CourseResponse editCourse(String id, CourseRequest req) {
+		Course cr = courserepo.findById(id)
+				.orElseThrow(()-> new RuntimeException("No such Course Exists"));
+		cr.setCode(req.getCode());
+		cr.setName(req.getName());
+		cr.setDurationYears(req.getDurration());
+		
+		Course c = courserepo.save(cr);
+		
+		CourseResponse resp=new CourseResponse();
+		resp.setCode(c.getCode());
+		resp.setDurationYears(req.getDurration());
+		resp.setDepartmentId(c.getDepartment().getId());
+		resp.setDepartmentName(c.getDepartment().getName());
+		resp.setName(c.getName());
+		resp.setId(c.getId());
+		
+		return resp;
+	}
+
 }

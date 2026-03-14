@@ -13,4 +13,5 @@ public interface CourseService {
 
 	CourseResponse addCourse(CourseRequest c);
 	List<Course> getCourseByDept(String deptId);
+	CourseResponse editCourse(String id,CourseRequest req);
 }
