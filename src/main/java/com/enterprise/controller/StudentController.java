@@ -163,7 +163,7 @@ public class StudentController {
 
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@PatchMapping("/{id}/roll-number")
-	private ResponseEntity<?> assignRollNumber(@PathVariable String id, @RequestBody RollNumrequest req) {
+	public ResponseEntity<?> assignRollNumber(@PathVariable String id, @RequestBody RollNumrequest req) {
 		try {
 			studService.assignRoll(id, req);
 			return ResponseEntity.ok("Assigned Sucessfully");
@@ -173,6 +173,7 @@ public class StudentController {
 	}
 	
 	// Bulk Roll number Asssignment
+	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/sections/{sectionId}/generate-roll-numbers")
 	public ResponseEntity<?> generateRollNumbers(@PathVariable String sectionId) {
 	    studService.generateRollNumbersForSection(sectionId);
@@ -238,5 +239,26 @@ public class StudentController {
 	            .header(HttpHeaders.CONTENT_DISPOSITION,
 	                    "inline; filename=" + resource.getFilename())
 	            .body(resource);
+	}
+	
+	// get unassigned students 
+	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
+	@GetMapping("/section/{sectionId}/unassigned")
+	public ResponseEntity<List<StudentResponse>> getStudentsWithoutRoll(
+	        @PathVariable String sectionId) {
+
+	    return ResponseEntity.ok(
+	        studService.getStudentsWithoutRoll(sectionId)
+	    );
+	}
+	
+	//Get Last roll number
+	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
+	@GetMapping("/section/{sectionId}/max-roll")
+	public ResponseEntity<Integer> getMaxRollNumber(@PathVariable String sectionId) {
+
+	    return ResponseEntity.ok(
+	        studService.getMaxRollNumber(sectionId)
+	    );
 	}
 }

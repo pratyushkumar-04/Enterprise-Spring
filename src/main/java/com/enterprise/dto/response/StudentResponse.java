@@ -29,6 +29,7 @@ public class StudentResponse {
     private String courseName;
     private String branchName;
     private String sectionname;
+    private Integer rollnumber;
 
     private String profileImagePath;
     private String adhaarpath;
@@ -123,6 +124,15 @@ public class StudentResponse {
 
 	public void setGender(Gender gender) {
 		this.gender = gender;
+	}
+	
+
+	public Integer getRollnumber() {
+		return rollnumber;
+	}
+
+	public void setRollnumber(Integer rollnumber) {
+		this.rollnumber = rollnumber;
 	}
 
 	public LocalDate getDateOfBirth() {

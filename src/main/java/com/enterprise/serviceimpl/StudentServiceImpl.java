@@ -93,11 +93,12 @@ public class StudentServiceImpl implements StudentService {
 		studResp.setTwelthMarksheet(student.getTwelthPath());
 		studResp.setStatus(student.getStatus());
 		studResp.setSectionname(student.getSection().getName());
+		studResp.setRollnumber(student.getRollNumber());
 
 		return studResp;
 	}
 
-	// unused for new logic 
+	// unused for new logic
 	private String saveStudentImage(MultipartFile image, String username) {
 
 		try {
@@ -149,11 +150,8 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public StudentResponse addStudent( StudentRequest studentReq,
-	        MultipartFile image,
-	        MultipartFile adhaar,
-	        MultipartFile tenth,
-	        MultipartFile twelfth) {
+	public StudentResponse addStudent(StudentRequest studentReq, MultipartFile image, MultipartFile adhaar,
+			MultipartFile tenth, MultipartFile twelfth) {
 		Department dept = deptRepo.findById(studentReq.getDepartmentId())
 				.orElseThrow(() -> new RuntimeException("No such Department Found"));
 		Course course = courseRepo.findById(studentReq.getCourseId())
@@ -200,24 +198,24 @@ public class StudentServiceImpl implements StudentService {
 //			savedStud.setImgPath(path);
 //			studentRepo.save(savedStud);
 //		}
-		
-		if(image != null && !image.isEmpty()) {
+
+		if (image != null && !image.isEmpty()) {
 			String imgpath = saveFile(image, studentFolder, "image");
 			savedStud.setImgPath(imgpath);
 		}
 		if (adhaar != null && !adhaar.isEmpty()) {
-	        savedStud.setAdhaarPath(saveFile(adhaar, studentFolder, "adhaar"));
-	    }
+			savedStud.setAdhaarPath(saveFile(adhaar, studentFolder, "adhaar"));
+		}
 
-	    if (tenth != null && !tenth.isEmpty()) {
-	        savedStud.setTenthPath(saveFile(tenth, studentFolder, "10thMarksheet"));
-	    }
+		if (tenth != null && !tenth.isEmpty()) {
+			savedStud.setTenthPath(saveFile(tenth, studentFolder, "10thMarksheet"));
+		}
 
-	    if (twelfth != null && !twelfth.isEmpty()) {
-	        savedStud.setTwelthPath(saveFile(twelfth, studentFolder, "12thMarksheet"));
-	    }
-	    
-	    studentRepo.save(savedStud);
+		if (twelfth != null && !twelfth.isEmpty()) {
+			savedStud.setTwelthPath(saveFile(twelfth, studentFolder, "12thMarksheet"));
+		}
+
+		studentRepo.save(savedStud);
 
 		StudentAddress studAddress = new StudentAddress();
 		studAddress.setAddressLine1(studentReq.getAddress().getAddressLine1());
@@ -352,21 +350,20 @@ public class StudentServiceImpl implements StudentService {
 	@Override
 	@Transactional
 	public void generateRollNumbersForSection(String sectionId) {
-		  List<Student> students = studentRepo
-		            .findBySectionIdOrderByAdmissionNumberAsc(sectionId);
+		List<Student> students = studentRepo.findBySectionIdOrderByAdmissionNumberAsc(sectionId);
 
-		    if (students.isEmpty()) {
-		        throw new RuntimeException("No students found in this section");
-		    }
+		if (students.isEmpty()) {
+			throw new RuntimeException("No students found in this section");
+		}
 
-		    int rollNumber = 1;
+		int rollNumber = 1;
 
-		    for (Student student : students) {
-		        student.setRollNumber(rollNumber++);
-		    }
+		for (Student student : students) {
+			student.setRollNumber(rollNumber++);
+		}
 
-		    studentRepo.saveAll(students);
-		
+		studentRepo.saveAll(students);
+
 	}
 
 	@Override
@@ -375,5 +372,22 @@ public class StudentServiceImpl implements StudentService {
 		return students.stream().map(student -> {
 			return mapToResponse(student);
 		}).toList();
+	}
+
+	@Override
+	public List<StudentResponse> getStudentsWithoutRoll(String sectionId) {
+		List<Student> students = studentRepo.findBySectionIdAndRollNumberIsNull(sectionId);
+
+		return students.stream().map(student -> {
+			return mapToResponse(student);
+		}).toList();
+
+	}
+
+	@Override
+	public Integer getMaxRollNumber(String sectionId) {
+
+		Integer max = studentRepo.findMaxRollNumberBySection(sectionId);
+		return max == null ? 0 : max;
 	}
 }

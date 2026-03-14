@@ -32,4 +32,6 @@ public interface StudentService {
 	void assignSection(String Id,SectionAssignRequest sec);
 	void generateRollNumbersForSection(String sectionId);
 	List<StudentResponse> getStudentsBySection(String sectionId);
+	List<StudentResponse> getStudentsWithoutRoll(String sectionId);
+	Integer getMaxRollNumber(String sectionId);
 }
