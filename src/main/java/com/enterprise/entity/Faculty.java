@@ -44,6 +44,9 @@ public class Faculty {
 	private Branch branch;
 
 	private LocalDate joiningDate;
+	
+	private String imagePath;
+	private String cvPath;
 
 	public String getId() {
 		return Id;
@@ -71,6 +74,23 @@ public class Faculty {
 
 	public String getEmail() {
 		return email;
+	}
+
+	
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public String getCvPath() {
+		return cvPath;
+	}
+
+	public void setCvPath(String cvPath) {
+		this.cvPath = cvPath;
 	}
 
 	public void setEmail(String email) {

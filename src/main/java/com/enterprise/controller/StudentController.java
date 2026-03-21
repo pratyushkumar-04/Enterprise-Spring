@@ -57,8 +57,7 @@ public class StudentController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> addStudent(
-			@RequestPart("student") StudentRequest sreq,
+	public ResponseEntity<?> addStudent(@RequestPart("student") StudentRequest sreq,
 			@RequestPart(value = "image", required = false) MultipartFile image,
 			@RequestPart(value = "adhaar", required = false) MultipartFile adhaar,
 			@RequestPart(value = "tenth", required = false) MultipartFile tenth,
@@ -77,10 +76,10 @@ public class StudentController {
 
 	@PostMapping("/test")
 	public String test() {
-	    System.out.println("HIT TEST");
-	    return "ok";
+		System.out.println("HIT TEST");
+		return "ok";
 	}
-	
+
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@GetMapping
 	public ResponseEntity<List<StudentResponse>> getAllStudents() {
@@ -171,15 +170,14 @@ public class StudentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
-	
+
 	// Bulk Roll number Asssignment
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/sections/{sectionId}/generate-roll-numbers")
 	public ResponseEntity<?> generateRollNumbers(@PathVariable String sectionId) {
-	    studService.generateRollNumbersForSection(sectionId);
-	    return ResponseEntity.ok("Roll numbers generated successfully");
+		studService.generateRollNumbersForSection(sectionId);
+		return ResponseEntity.ok("Roll numbers generated successfully");
 	}
-	
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PatchMapping("/{id}/section")
@@ -191,74 +189,57 @@ public class StudentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
+
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@GetMapping("/section/{sectionId}")
-	public ResponseEntity<List<StudentResponse>> getStudentsBySection(
-	        @PathVariable String sectionId) {
+	public ResponseEntity<List<StudentResponse>> getStudentsBySection(@PathVariable String sectionId) {
 
-	    List<StudentResponse> students = studService.getStudentsBySection(sectionId);
+		List<StudentResponse> students = studService.getStudentsBySection(sectionId);
 
-	    return ResponseEntity.ok(students);
+		return ResponseEntity.ok(students);
 	}
-	
+
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@GetMapping("/image/{id}")
-	public ResponseEntity<Resource> getImage(@PathVariable String id) throws IOException,MalformedURLException{
+	public ResponseEntity<?> getImage(@PathVariable String id) throws IOException, MalformedURLException {
 
-	    StudentResponse student = studService.getStudentById(id);
-
-	    Path path = Paths.get(student.getProfileImagePath());
-	    Resource resource = new UrlResource(path.toUri());
-
-	    return ResponseEntity.ok()
-	            .contentType(MediaType.IMAGE_JPEG)
-	            .body(resource);
+		try {
+			Resource res = studService.getImage(id);
+			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(res);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
 	}
-	
-	
+
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@GetMapping("/document/{id}/{type}")
-	public ResponseEntity<Resource> getDocument(
-	        @PathVariable String id,
-	        @PathVariable String type) throws IOException,MalformedURLException{
-
-	    StudentResponse student = studService.getStudentById(id);
-
-	    String filePath = switch (type) {
-	        case "adhaar" -> student.getAdhaarpath();
-	        case "tenth" -> student.getTenthMarksheet();
-	        case "twelth" -> student.getTwelthMarksheet();
-	        default -> throw new RuntimeException("Invalid document type");
-	    };
-
-	    Path path = Paths.get(filePath);
-	    Resource resource = new UrlResource(path.toUri());
-
-	    return ResponseEntity.ok()
-	            .contentType(MediaType.APPLICATION_PDF)
-	            .header(HttpHeaders.CONTENT_DISPOSITION,
-	                    "inline; filename=" + resource.getFilename())
-	            .body(resource);
+	public ResponseEntity<?> getDocument(@PathVariable String id, @PathVariable String type)
+			throws IOException, MalformedURLException {
+		
+		try {
+			Resource res = studService.getDocument(id, type);
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + res.getFilename()).body(res);
+			
+		}
+		catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
 	}
-	
-	// get unassigned students 
+
+	// get unassigned students
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@GetMapping("/section/{sectionId}/unassigned")
-	public ResponseEntity<List<StudentResponse>> getStudentsWithoutRoll(
-	        @PathVariable String sectionId) {
+	public ResponseEntity<List<StudentResponse>> getStudentsWithoutRoll(@PathVariable String sectionId) {
 
-	    return ResponseEntity.ok(
-	        studService.getStudentsWithoutRoll(sectionId)
-	    );
+		return ResponseEntity.ok(studService.getStudentsWithoutRoll(sectionId));
 	}
-	
-	//Get Last roll number
+
+	// Get Last roll number
 	@PreAuthorize("hasAnyRole('FACULTY','ADMIN')")
 	@GetMapping("/section/{sectionId}/max-roll")
 	public ResponseEntity<Integer> getMaxRollNumber(@PathVariable String sectionId) {
 
-	    return ResponseEntity.ok(
-	        studService.getMaxRollNumber(sectionId)
-	    );
+		return ResponseEntity.ok(studService.getMaxRollNumber(sectionId));
 	}
 }

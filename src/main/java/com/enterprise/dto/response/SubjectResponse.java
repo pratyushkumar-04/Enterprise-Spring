@@ -5,6 +5,7 @@ import com.enterprise.enums.SubjectType;
 
 public class SubjectResponse {
 
+	private String Id;
 	private String name;
 	private String code;
 	private Integer credits;
@@ -60,6 +61,12 @@ public class SubjectResponse {
 	}
 	public void setBranchName(String branchName) {
 		this.branchName = branchName;
+	}
+	public String getId() {
+		return Id;
+	}
+	public void setId(String id) {
+		Id = id;
 	}
 	
 	

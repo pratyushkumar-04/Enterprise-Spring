@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.enterprise.dto.request.SectionModifyReq;
 import com.enterprise.dto.request.SectionRequest;
 import com.enterprise.dto.response.SectionResponse;
 import com.enterprise.entity.Branch;
@@ -28,6 +29,7 @@ public class SectionServiceImpl implements SectionService{
 
 		resp.setId(section.getId());
 		resp.setName(section.getName());
+		resp.setActive(section.getActive());
 		
 		return resp;
 	}
@@ -62,6 +64,18 @@ public class SectionServiceImpl implements SectionService{
 	public List<Section> getAllSections() {
 		List<Section> sections = sectionRepo.findAll();
 		return sections;
+	}
+
+	@Override
+	public SectionResponse modifySection(String Id, SectionModifyReq req) {
+		Section sec = sectionRepo.findById(Id)
+				.orElseThrow(()-> new RuntimeException("No Section Exists"));
+		
+		sec.setName(req.getName());
+		sec.setActive(req.getActive());
+		
+		Section savedSec= sectionRepo.save(sec);
+		return mapToResponse(savedSec);
 	}
 
 }

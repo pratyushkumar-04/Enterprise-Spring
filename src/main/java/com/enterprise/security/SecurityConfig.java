@@ -42,6 +42,11 @@ public class SecurityConfig {
 	                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 👈 allow preflight
 	                .requestMatchers("/auth/**").permitAll()
 	                .requestMatchers("/student-images/**").permitAll()
+	                .requestMatchers(
+	                        "/v3/api-docs/**",
+	                        "/swagger-ui/**",
+	                        "/swagger-ui.html"
+	                    ).permitAll()
 	                .anyRequest().authenticated()
 	        )
 	        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -68,7 +68,7 @@ public class SubjectController {
 		}
 	}
 	@PreAuthorize("hasRole('ADMIN')")
-	@PatchMapping("status/{subId}")
+	@PatchMapping("/status/{subId}")
 	public ResponseEntity<?>changeSubjectStatus(@RequestBody SubjectStatusRequest newstat,@PathVariable String subId){
 		try {
 			return ResponseEntity.ok(subService.modifyStatus(subId, newstat));

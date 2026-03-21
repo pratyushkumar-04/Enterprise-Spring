@@ -4,6 +4,7 @@ public class SectionResponse {
 	
     private String id;
     private String name;
+    private Boolean active;
 	public String getId() {
 		return id;
 	}
@@ -16,6 +17,13 @@ public class SectionResponse {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public Boolean getActive() {
+		return active;
+	}
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+	
     
     
 }

@@ -1,7 +1,9 @@
 package com.enterprise.service;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,4 +36,6 @@ public interface StudentService {
 	List<StudentResponse> getStudentsBySection(String sectionId);
 	List<StudentResponse> getStudentsWithoutRoll(String sectionId);
 	Integer getMaxRollNumber(String sectionId);
+	Resource getImage(String Id) throws MalformedURLException;
+	Resource getDocument(String Id,String type) throws MalformedURLException;
 }

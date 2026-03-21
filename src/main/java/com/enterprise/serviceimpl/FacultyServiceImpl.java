@@ -1,11 +1,17 @@
 package com.enterprise.serviceimpl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.FacultyRequest;
 import com.enterprise.dto.request.FacultySubjectAssignRequest;
@@ -28,6 +34,9 @@ import com.enterprise.service.FacultyService;
 
 @Service
 public class FacultyServiceImpl implements FacultyService {
+	
+	@Value("${faculty.upload-dir}")
+	private String uploadDir;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -70,9 +79,35 @@ public class FacultyServiceImpl implements FacultyService {
 
 		return prefix + String.format("%03d", nextNumber);
 	}
+	
+	public String saveFile(MultipartFile file, String folderPath, String fileType) {
+        try {
+            if (file == null || file.isEmpty()) return null;
+
+            String extension = file.getOriginalFilename()
+                    .substring(file.getOriginalFilename().lastIndexOf("."));
+
+            String fileName = fileType + extension;
+
+            Path path = Paths.get(folderPath);
+
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+
+            Path filePath = path.resolve(fileName);
+
+            Files.write(filePath, file.getBytes());
+
+            return filePath.toString(); // store path
+
+        } catch (IOException e) {
+            throw new RuntimeException(fileType + " upload failed", e);
+        }
+    }
 
 	@Override
-	public FacultyResponse addFaculty(FacultyRequest facreq) {
+	public FacultyResponse addFaculty(FacultyRequest facreq, MultipartFile image, MultipartFile cv) {
 		Department dept = deptRepo.findById(facreq.getDepartmentId())
 				.orElseThrow(() -> new IllegalArgumentException("No Such Department exists"));
 		Branch branch = branchRepo.findById(facreq.getBranchId())
@@ -90,7 +125,17 @@ public class FacultyServiceImpl implements FacultyService {
 		faculty.setFacultyCode(generateFacultyCode());
 		faculty.setJoiningDate(LocalDate.now());
 
-		facultyRepo.save(faculty);
+		Faculty savedFaculty= facultyRepo.save(faculty);
+	    String facultyFolder = uploadDir + savedFaculty.getFacultyCode() + "/";
+	    
+	    String imgpath = saveFile(image, facultyFolder, "image");
+	    String cvpath = saveFile(cv, facultyFolder, "cv");
+	    
+	    savedFaculty.setCvPath(cvpath);
+	    savedFaculty.setImagePath(imgpath);
+	    
+	    facultyRepo.save(savedFaculty);
+
 		
 		User us = new User();
 		us.setUsername(faculty.getFacultyCode());

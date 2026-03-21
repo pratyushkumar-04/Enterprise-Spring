@@ -1,6 +1,7 @@
 package com.enterprise.serviceimpl;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +11,8 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -389,5 +392,33 @@ public class StudentServiceImpl implements StudentService {
 
 		Integer max = studentRepo.findMaxRollNumberBySection(sectionId);
 		return max == null ? 0 : max;
+	}
+
+	@Override
+	public Resource getImage(String Id) throws MalformedURLException {
+		Student student = studentRepo.findById(Id)
+				.orElseThrow(()-> new RuntimeException("No Student Found"));
+
+	    Path path = Paths.get(student.getImgPath());
+	    Resource resource = new UrlResource(path.toUri());
+	    return resource;
+
+	}
+
+	@Override
+	public Resource getDocument(String Id, String type) throws MalformedURLException {
+		Student student = studentRepo.findById(Id)
+				.orElseThrow(()-> new RuntimeException("No Such Student Exists"));
+
+		String filePath = switch (type) {
+		case "adhaar" -> student.getAdhaarPath();
+		case "tenth" -> student.getTenthPath();
+		case "twelth" -> student.getTwelthPath();
+		default -> throw new RuntimeException("Invalid document type");
+		};
+
+		Path path = Paths.get(filePath);
+		Resource resource = new UrlResource(path.toUri());
+		return resource;
 	}
 }
