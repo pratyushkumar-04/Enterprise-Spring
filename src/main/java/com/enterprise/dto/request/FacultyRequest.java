@@ -9,7 +9,9 @@ public class FacultyRequest {
 	private String phone;
 	private Designation designation;
 	private String departmentId;
+	private String courseId;
 	private String branchId;
+	private String qualification;
 	public String getName() {
 		return name;
 	}
@@ -46,6 +48,18 @@ public class FacultyRequest {
 	}
 	public void setBranchId(String branchId) {
 		this.branchId = branchId;
+	}
+	public String getCourseId() {
+		return courseId;
+	}
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
+	public String getQualification() {
+		return qualification;
+	}
+	public void setQualification(String qualification) {
+		this.qualification = qualification;
 	}
 	
 	

@@ -30,6 +30,9 @@ public class StudentResponse {
     private String branchName;
     private String sectionname;
     private Integer rollnumber;
+    private String departmentId;
+    private String courseId;
+    private String branchId;
 
     private String profileImagePath;
     private String adhaarpath;
@@ -206,6 +209,31 @@ public class StudentResponse {
 	public void setSectionname(String sectionname) {
 		this.sectionname = sectionname;
 	}
+
+	public String getDepartmentId() {
+		return departmentId;
+	}
+
+	public void setDepartmentId(String departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	public String getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
+
+	public String getBranchId() {
+		return branchId;
+	}
+
+	public void setBranchId(String branchId) {
+		this.branchId = branchId;
+	}
+	
     
     
 	

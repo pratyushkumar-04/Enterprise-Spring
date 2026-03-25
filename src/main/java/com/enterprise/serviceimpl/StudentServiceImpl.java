@@ -97,6 +97,9 @@ public class StudentServiceImpl implements StudentService {
 		studResp.setStatus(student.getStatus());
 		studResp.setSectionname(student.getSection().getName());
 		studResp.setRollnumber(student.getRollNumber());
+		studResp.setDepartmentId(student.getDepartment().getId());
+		studResp.setCourseId(student.getCourse().getId());
+		studResp.setBranchId(student.getBranch().getId());
 
 		return studResp;
 	}

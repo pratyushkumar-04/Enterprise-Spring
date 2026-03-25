@@ -1,9 +1,12 @@
 package com.enterprise.service;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
 import com.enterprise.dto.request.FacultySubjectAssignRequest;
 import com.enterprise.dto.response.FacultyResponse;
@@ -23,5 +26,10 @@ public interface FacultyService {
 	FacultyResponse changeStatus(String factId, FacultyStatus status);
 
 	FacultySubject assignSubject(FacultySubjectAssignRequest assignReq);
+	
+	FacultyResponse editFaculty(String id,FacultyModifyRequest req);
+	
+	Resource getCv(String Id) throws MalformedURLException;
+	Resource getImage(String Id) throws MalformedURLException;
 
 }
