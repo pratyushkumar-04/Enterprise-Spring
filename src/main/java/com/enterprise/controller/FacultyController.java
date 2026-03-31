@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
-import com.enterprise.dto.request.FacultySubjectAssignRequest;
+import com.enterprise.dto.request.SubjectFacultySectionAssignmentRequestDTO;
 import com.enterprise.dto.response.FacultyResponse;
 import com.enterprise.enums.FacultyStatus;
 import com.enterprise.service.FacultyService;
@@ -85,16 +85,16 @@ public class FacultyController {
 		}
 	}
 	
-	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("/assign-subject")
-	public ResponseEntity<?> assignSubject(@RequestBody FacultySubjectAssignRequest subjectReq){
-		try {
-			return ResponseEntity.ok(facultyService.assignSubject(subjectReq));
-		}
-		catch(Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		}
-	}
+//	@PreAuthorize("hasRole('ADMIN')")
+//	@PostMapping("/assign-subject")
+//	public ResponseEntity<?> assignSubject(@RequestBody FacultySubjectAssignRequest subjectReq){
+//		try {
+//			return ResponseEntity.ok(facultyService.assignSubject(subjectReq));
+//		}
+//		catch(Exception e) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//		}
+//	}
 	@PutMapping("/{Id}")
 	public ResponseEntity<?> editFaculty(@PathVariable String Id,@RequestBody FacultyModifyRequest req ){
 		try {
@@ -126,4 +126,15 @@ public class FacultyController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
+	
+	@GetMapping("/branch/{Id}")
+		public ResponseEntity<?> getFacultyByBranch(@PathVariable String Id){
+		try {
+			return ResponseEntity.ok(facultyService.getbyBranch(Id));
+		}
+		catch(Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+		}
+	
 }

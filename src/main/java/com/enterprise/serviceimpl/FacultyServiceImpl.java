@@ -18,13 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
-import com.enterprise.dto.request.FacultySubjectAssignRequest;
+import com.enterprise.dto.request.SubjectFacultySectionAssignmentRequestDTO;
 import com.enterprise.dto.response.FacultyResponse;
 import com.enterprise.entity.Branch;
 import com.enterprise.entity.Course;
 import com.enterprise.entity.Department;
 import com.enterprise.entity.Faculty;
-import com.enterprise.entity.FacultySubject;
+//import com.enterprise.entity.FacultySubject;
 import com.enterprise.entity.Subject;
 import com.enterprise.entity.User;
 import com.enterprise.enums.FacultyStatus;
@@ -33,7 +33,7 @@ import com.enterprise.repository.BranchRepository;
 import com.enterprise.repository.CourseRepository;
 import com.enterprise.repository.DepartmentRepository;
 import com.enterprise.repository.FacultyRepository;
-import com.enterprise.repository.FacultySubjectRespository;
+//import com.enterprise.repository.FacultySubjectRespository;
 import com.enterprise.repository.SubjectRepository;
 import com.enterprise.repository.UserRepository;
 import com.enterprise.service.FacultyService;
@@ -55,8 +55,8 @@ public class FacultyServiceImpl implements FacultyService {
 	private SubjectRepository subjectRepo;	
 	@Autowired
 	private BranchRepository branchRepo;
-	@Autowired
-	private FacultySubjectRespository facultySubjectRepo;
+//	@Autowired
+//	private FacultySubjectRespository facultySubjectRepo;
 	@Autowired
 	private CourseRepository courseRepo;
 
@@ -205,21 +205,21 @@ public class FacultyServiceImpl implements FacultyService {
 		return maptoResponse(faculty);
 	}
 
-	@Override
-	public FacultySubject assignSubject(FacultySubjectAssignRequest assignReq) {
-		Faculty faculty = facultyRepo.findById(assignReq.getFacultyId())
-				.orElseThrow(() -> new RuntimeException("Faculty not found"));
-
-		Subject subject = subjectRepo.findById(assignReq.getSubjectId())
-				.orElseThrow(() -> new RuntimeException("Subject not found"));
-		
-		FacultySubject fs = new FacultySubject();
-		fs.setFaculty(faculty);
-		fs.setSemester(assignReq.getSemester());
-		fs.setSubject(subject);
-
-		return facultySubjectRepo.save(fs);
-	}
+//	@Override
+//	public FacultySubject assignSubject(SubjectFacultySectionAssignmentRequestDTO assignReq) {
+//		Faculty faculty = facultyRepo.findById(assignReq.getFacultyId())
+//				.orElseThrow(() -> new RuntimeException("Faculty not found"));
+//
+//		Subject subject = subjectRepo.findById(assignReq.getSubjectId())
+//				.orElseThrow(() -> new RuntimeException("Subject not found"));
+//		
+//		FacultySubject fs = new FacultySubject();
+//		fs.setFaculty(faculty);
+//		fs.setSemester(assignReq.getSemester());
+//		fs.setSubject(subject);
+//
+//		return facultySubjectRepo.save(fs);
+//	}
 
 	@Override
 	public Resource getCv(String Id) throws MalformedURLException {
@@ -256,6 +256,17 @@ public class FacultyServiceImpl implements FacultyService {
 	    Path path = Paths.get(faculty.getImagePath());
 	    Resource resource = new UrlResource(path.toUri());
 	    return resource;
+	}
+
+	@Override
+	public List<FacultyResponse> getbyBranch(String branchId) {
+		Branch branch = branchRepo.findById(branchId)
+				.orElseThrow(()-> new RuntimeException("No Such Branch Exists"));
+		
+		List<Faculty> faculties = facultyRepo.findByBranchId(branchId);
+		return faculties.stream().map(faculty -> {
+			return maptoResponse(faculty);
+		}).toList();
 	}
 
 }

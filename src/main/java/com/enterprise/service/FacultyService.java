@@ -8,9 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
-import com.enterprise.dto.request.FacultySubjectAssignRequest;
+//import com.enterprise.dto.request.SubjectFacultySectionAssignmentRequestDTO;
 import com.enterprise.dto.response.FacultyResponse;
-import com.enterprise.entity.FacultySubject;
+//import com.enterprise.entity.FacultySubject;
 import com.enterprise.enums.FacultyStatus;
 
 public interface FacultyService {
@@ -25,11 +25,13 @@ public interface FacultyService {
 
 	FacultyResponse changeStatus(String factId, FacultyStatus status);
 
-	FacultySubject assignSubject(FacultySubjectAssignRequest assignReq);
+//	FacultySubject assignSubject(SubjectFacultySectionAssignmentRequestDTO assignReq);
 	
 	FacultyResponse editFaculty(String id,FacultyModifyRequest req);
 	
 	Resource getCv(String Id) throws MalformedURLException;
 	Resource getImage(String Id) throws MalformedURLException;
+	
+	List<FacultyResponse>  getbyBranch(String branchId);
 
 }
