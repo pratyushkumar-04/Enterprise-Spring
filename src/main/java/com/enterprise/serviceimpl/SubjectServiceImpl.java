@@ -85,7 +85,8 @@ public class SubjectServiceImpl implements SubjectService{
 	            .map(subject -> {
 
 	                SubjectResponse res = new SubjectResponse();
-
+	                
+	                res.setId(subject.getId());
 	                res.setName(subject.getName());
 	                res.setCode(subject.getCode());
 	                res.setCredits(subject.getCredits());

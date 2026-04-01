@@ -1,7 +1,10 @@
 package com.enterprise.service;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.RollNumrequest;
@@ -10,9 +13,14 @@ import com.enterprise.dto.request.StudentRequest;
 import com.enterprise.dto.response.StudentResponse;
 import com.enterprise.enums.StudentStatus;
 
+@Service
 public interface StudentService {
 
-	StudentResponse addStudent(StudentRequest student,MultipartFile image);
+	StudentResponse addStudent( StudentRequest studentReq,
+	        MultipartFile image,
+	        MultipartFile adhaar,
+	        MultipartFile tenth,
+	        MultipartFile twelfth);
 	List<StudentResponse> getAllstudents();
 	StudentResponse getStudentById(String Id);
 	StudentResponse getStudentByAdmnum(String admnum);
@@ -24,5 +32,10 @@ public interface StudentService {
 	StudentResponse edit(String Id,StudentRequest sreq);
 	void assignRoll(String Id,RollNumrequest req);
 	void assignSection(String Id,SectionAssignRequest sec);
-	
+	void generateRollNumbersForSection(String sectionId);
+	List<StudentResponse> getStudentsBySection(String sectionId);
+	List<StudentResponse> getStudentsWithoutRoll(String sectionId);
+	Integer getMaxRollNumber(String sectionId);
+	Resource getImage(String Id) throws MalformedURLException;
+	Resource getDocument(String Id,String type) throws MalformedURLException;
 }

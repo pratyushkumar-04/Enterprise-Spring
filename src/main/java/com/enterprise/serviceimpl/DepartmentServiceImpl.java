@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.enterprise.dto.request.DepartmentReq;
 import com.enterprise.entity.Department;
 import com.enterprise.repository.DepartmentRepository;
 import com.enterprise.service.DepartmentService;
@@ -34,6 +35,17 @@ public class DepartmentServiceImpl implements DepartmentService{
 	@Override
 	public List<Department> fetchAllDepartments() {
 		return Depatrepo.findAll();
+	}
+
+	@Override
+	public Department editDepartment(String Id,DepartmentReq req) {
+		Department dept = Depatrepo.findById(Id).
+				orElseThrow(() -> new RuntimeException("No Such Department found"));
+		dept.setName(req.getName());
+		dept.setCode(req.getCode());
+		
+		Depatrepo.save(dept);
+		return dept;
 	}
 	
 

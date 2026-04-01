@@ -72,4 +72,26 @@ public class BranchServiceImpl implements BranchService {
 			return res;
 		}).toList();
 	}
+
+	@Override
+	public BranchResponse editBranch(String id, BranchRequest req) {
+		Branch br = branchRepo.findById(id)
+				.orElseThrow(()-> new RuntimeException("No such brach exists"));
+		br.setCode(req.getCode());
+		br.setName(req.getName());
+		
+		Branch savedbranch= branchRepo.save(br);
+
+		BranchResponse bresp = new BranchResponse();
+
+		bresp.setId(savedbranch.getId());
+		bresp.setCode(savedbranch.getCode());
+		bresp.setCourseId(savedbranch.getCourse().getId());
+		bresp.setCourseName(savedbranch.getCourse().getName());
+		bresp.setName(savedbranch.getName());
+		bresp.setDepartmentId(savedbranch.getCourse().getDepartment().getId());
+		bresp.setDepartmentName(savedbranch.getCourse().getDepartment().getName());
+		bresp.setDurationYears(savedbranch.getCourse().getDurationYears());
+		return bresp;
+	}
 }

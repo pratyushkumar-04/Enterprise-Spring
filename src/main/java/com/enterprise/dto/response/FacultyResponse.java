@@ -11,7 +11,37 @@ public class FacultyResponse {
 	private Designation designation;
 	private String departmentName;
 	private String branchName;
+	private String courseName;
 	private FacultyStatus status;
+	private String email;
+	private String phone;
+	private String qualification;
+	
+	
+
+	public String getQualification() {
+		return qualification;
+	}
+
+	public void setQualification(String qualification) {
+		this.qualification = qualification;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
 
 	public String getId() {
 		return id;
@@ -67,6 +97,14 @@ public class FacultyResponse {
 
 	public void setStatus(FacultyStatus status) {
 		this.status = status;
+	}
+
+	public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
 	}
 
 }

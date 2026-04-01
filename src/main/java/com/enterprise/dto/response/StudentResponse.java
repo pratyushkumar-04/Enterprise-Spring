@@ -29,8 +29,41 @@ public class StudentResponse {
     private String courseName;
     private String branchName;
     private String sectionname;
+    private Integer rollnumber;
+    private String departmentId;
+    private String courseId;
+    private String branchId;
 
     private String profileImagePath;
+    private String adhaarpath;
+    private String tenthMarksheet;
+    private String twelthMarksheet;
+    
+    
+
+	public String getAdhaarpath() {
+		return adhaarpath;
+	}
+
+	public void setAdhaarpath(String adhaarpath) {
+		this.adhaarpath = adhaarpath;
+	}
+
+	public String getTenthMarksheet() {
+		return tenthMarksheet;
+	}
+
+	public void setTenthMarksheet(String tenthMarksheet) {
+		this.tenthMarksheet = tenthMarksheet;
+	}
+
+	public String getTwelthMarksheet() {
+		return twelthMarksheet;
+	}
+
+	public void setTwelthMarksheet(String twelthMarksheet) {
+		this.twelthMarksheet = twelthMarksheet;
+	}
 
 	public String getId() {
 		return id;
@@ -94,6 +127,15 @@ public class StudentResponse {
 
 	public void setGender(Gender gender) {
 		this.gender = gender;
+	}
+	
+
+	public Integer getRollnumber() {
+		return rollnumber;
+	}
+
+	public void setRollnumber(Integer rollnumber) {
+		this.rollnumber = rollnumber;
 	}
 
 	public LocalDate getDateOfBirth() {
@@ -167,6 +209,31 @@ public class StudentResponse {
 	public void setSectionname(String sectionname) {
 		this.sectionname = sectionname;
 	}
+
+	public String getDepartmentId() {
+		return departmentId;
+	}
+
+	public void setDepartmentId(String departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	public String getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
+
+	public String getBranchId() {
+		return branchId;
+	}
+
+	public void setBranchId(String branchId) {
+		this.branchId = branchId;
+	}
+	
     
     
 	

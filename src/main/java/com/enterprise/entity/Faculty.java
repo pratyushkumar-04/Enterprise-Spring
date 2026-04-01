@@ -42,8 +42,17 @@ public class Faculty {
 	@ManyToOne
 	@JoinColumn(name = "branch_id")
 	private Branch branch;
+	
+	@ManyToOne
+	@JoinColumn(name = "course_id")
+	private Course course;
 
 	private LocalDate joiningDate;
+	
+	private String imagePath;
+	private String cvPath;
+	
+	private String qualifications;
 
 	public String getId() {
 		return Id;
@@ -71,6 +80,23 @@ public class Faculty {
 
 	public String getEmail() {
 		return email;
+	}
+
+	
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public String getCvPath() {
+		return cvPath;
+	}
+
+	public void setCvPath(String cvPath) {
+		this.cvPath = cvPath;
 	}
 
 	public void setEmail(String email) {
@@ -124,5 +150,22 @@ public class Faculty {
 	public void setJoiningDate(LocalDate joiningDate) {
 		this.joiningDate = joiningDate;
 	}
+
+	public Course getCourse() {
+		return course;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+
+	public String getQualifications() {
+		return qualifications;
+	}
+
+	public void setQualifications(String qualifications) {
+		this.qualifications = qualifications;
+	}
+	
 
 }

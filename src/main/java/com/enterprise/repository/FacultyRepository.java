@@ -10,5 +10,6 @@ public interface FacultyRepository extends JpaRepository<Faculty,String>{
 
 	Faculty findTopByOrderByFacultyCodeDesc();
     List<Faculty> findByDepartmentId(String departmentId);
+    List<Faculty> findByBranchId(String branchId);
 
 }

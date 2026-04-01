@@ -3,6 +3,7 @@ package com.enterprise.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +17,6 @@ import com.enterprise.dto.request.SubjectChangeRequest;
 import com.enterprise.dto.request.SubjectRequest;
 import com.enterprise.dto.request.SubjectStatusRequest;
 import com.enterprise.dto.response.SubjectResponse;
-import com.enterprise.enums.SubjectStatus;
 import com.enterprise.service.SubjectService;
 
 @RestController
@@ -26,6 +26,7 @@ public class SubjectController {
 	@Autowired
 	private SubjectService subService;
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	public ResponseEntity<?> addSubject(@RequestBody SubjectRequest subReq) {
 		try {
@@ -55,7 +56,8 @@ public class SubjectController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
-
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/update/{subId}")
 	public ResponseEntity<?> updateSubject(@RequestBody SubjectChangeRequest subchange, @PathVariable String subId) {
 		try {
@@ -65,8 +67,8 @@ public class SubjectController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
-	
-	@PatchMapping("status/{subId}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@PatchMapping("/status/{subId}")
 	public ResponseEntity<?>changeSubjectStatus(@RequestBody SubjectStatusRequest newstat,@PathVariable String subId){
 		try {
 			return ResponseEntity.ok(subService.modifyStatus(subId, newstat));
@@ -75,5 +77,7 @@ public class SubjectController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
+	
+	//get subjects by branch sem 
 
 }
