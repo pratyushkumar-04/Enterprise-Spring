@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.enterprise.dto.request.ChangePasswordRequest;
 import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
 //import com.enterprise.dto.request.SubjectFacultySectionAssignmentRequestDTO;
@@ -33,5 +34,6 @@ public interface FacultyService {
 	Resource getImage(String Id) throws MalformedURLException;
 	
 	List<FacultyResponse>  getbyBranch(String branchId);
+	void changePassword(ChangePasswordRequest req);
 
 }

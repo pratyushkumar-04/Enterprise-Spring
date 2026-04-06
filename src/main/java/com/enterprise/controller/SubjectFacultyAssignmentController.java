@@ -45,6 +45,15 @@ public class SubjectFacultyAssignmentController {
 
 		return ResponseEntity.ok(assignmentService.getAssignments(sectionId, semester));
 	}
+	
+	@GetMapping("/faculty/{id}")
+	public ResponseEntity<?> getAssignmentsByFaculty(@PathVariable String id){
+		try {
+			return ResponseEntity.ok(assignmentService.getAssignmentsByFacultyId(id));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
 
 	@PutMapping("/reassign")
 	public ResponseEntity<SubjectFacultySectionAssignmentResponse> reassignFaculty(@RequestBody ReassignFaculty dto) {

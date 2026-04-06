@@ -45,9 +45,12 @@ public class JwtService {
 		Optional<User> userOpt = userRepo.findByUsername(username);
 		if (userOpt.isPresent()) {
 			User user= userOpt.get();
+			String id = user.getRefId();
 			claims.put("role", user.getRole().name());
+			claims.put("id", id);
 			
 		}
+		
 		return Jwts.builder()
 				.setClaims(claims)
 				.setSubject(username)

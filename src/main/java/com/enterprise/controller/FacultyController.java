@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.enterprise.dto.request.ChangePasswordRequest;
 import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
 import com.enterprise.dto.request.SubjectFacultySectionAssignmentRequestDTO;
@@ -135,6 +136,16 @@ public class FacultyController {
 		catch(Exception e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
-		}
+	}
+	
+	@PostMapping("/change-password")
+	public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+	    try {
+	        facultyService.changePassword(request);
+	        return ResponseEntity.ok("Password changed successfully");
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body(e.getMessage());
+	    }
+	}
 	
 }

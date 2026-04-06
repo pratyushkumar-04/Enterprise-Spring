@@ -20,5 +20,6 @@ public interface SubjectFacultySectionAssignmentService {
             ReassignFaculty dto);
 
     void deleteAssignment(String assignmentId);
+    List<SubjectFacultySectionAssignmentResponse> getAssignmentsByFacultyId(String id);
     
 }

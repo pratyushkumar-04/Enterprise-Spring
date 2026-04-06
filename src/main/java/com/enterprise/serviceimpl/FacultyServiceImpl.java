@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.enterprise.dto.request.ChangePasswordRequest;
 import com.enterprise.dto.request.FacultyModifyRequest;
 import com.enterprise.dto.request.FacultyRequest;
 import com.enterprise.dto.request.SubjectFacultySectionAssignmentRequestDTO;
@@ -267,6 +268,24 @@ public class FacultyServiceImpl implements FacultyService {
 		return faculties.stream().map(faculty -> {
 			return maptoResponse(faculty);
 		}).toList();
+	}
+
+	@Override
+	public void changePassword(ChangePasswordRequest req) {
+		 User user = userRepo.findByUsername(req.getUsername())
+		            .orElseThrow(() -> new RuntimeException("User not found"));
+
+		    if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
+		        throw new RuntimeException("Invalid current password");
+		    }
+
+		    if (passwordEncoder.matches(req.getNewPassword(), user.getPassword())) {
+		        throw new RuntimeException("New password cannot be same as old password");
+		    }
+
+		    user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+		    userRepo.save(user);
+		
 	}
 
 }
