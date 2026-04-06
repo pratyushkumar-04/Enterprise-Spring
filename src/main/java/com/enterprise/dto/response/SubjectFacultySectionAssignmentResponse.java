@@ -17,6 +17,7 @@ public class SubjectFacultySectionAssignmentResponse {
 
     private Integer semester;
     private String academicYear;
+    private String branch;
 
     private Boolean active;
 
@@ -115,6 +116,15 @@ public class SubjectFacultySectionAssignmentResponse {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
+
+	public String getBranch() {
+		return branch;
+	}
+
+	public void setBranch(String branch) {
+		this.branch = branch;
+	}
+	
     
     
 }

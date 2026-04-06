@@ -30,6 +30,31 @@ public class SubjectFacultySectionAssignmentServiceImpl implements SubjectFacult
 	private SectionRepository sectionRepository;
 	@Autowired
 	private FacultyRepository facultyRepository;
+	
+	private SubjectFacultySectionAssignmentResponse mapToDTO(SubjectFacultySectionAssignment assignment) {
+
+		SubjectFacultySectionAssignmentResponse response = new SubjectFacultySectionAssignmentResponse();
+
+		response.setId(assignment.getId());
+
+		response.setSubjectId(assignment.getSubject().getId());
+		response.setSubjectCode(assignment.getSubject().getCode());
+		response.setSubjectName(assignment.getSubject().getName());
+
+		response.setSectionId(assignment.getSection().getId());
+		response.setSectionName(assignment.getSection().getName());
+
+		response.setFacultyId(assignment.getFaculty().getId());
+		response.setFacultyCode(assignment.getFaculty().getFacultyCode());
+		response.setFacultyName(assignment.getFaculty().getName());
+
+		response.setSemester(assignment.getSemester());
+		response.setAcademicYear(assignment.getAcademicYear());
+		response.setActive(assignment.getActive());
+		response.setBranch(assignment.getSection().getBranch().getName());
+
+		return response;
+	}
 
 	@Override
 	public SubjectFacultySectionAssignmentResponse createAssignment(SubjectFacultySectionAssignmentRequestDTO dto) {
@@ -65,7 +90,8 @@ public class SubjectFacultySectionAssignmentServiceImpl implements SubjectFacult
 	@Override
 	public List<SubjectFacultySectionAssignmentResponse> getAssignments(String sectionId, Integer semester) {
 
-		return assignmentRepository.getAssignmentsForSection(sectionId, semester).stream().map(this::mapToDTO).toList();
+		return assignmentRepository.getAssignmentsForSection(sectionId, semester)
+				.stream().map(this::mapToDTO).toList();
 	}
 
 	@Override
@@ -93,28 +119,17 @@ public class SubjectFacultySectionAssignmentServiceImpl implements SubjectFacult
 		assignmentRepository.delete(assignment);
 	}
 
-	private SubjectFacultySectionAssignmentResponse mapToDTO(SubjectFacultySectionAssignment assignment) {
 
-		SubjectFacultySectionAssignmentResponse response = new SubjectFacultySectionAssignmentResponse();
-
-		response.setId(assignment.getId());
-
-		response.setSubjectId(assignment.getSubject().getId());
-		response.setSubjectCode(assignment.getSubject().getCode());
-		response.setSubjectName(assignment.getSubject().getName());
-
-		response.setSectionId(assignment.getSection().getId());
-		response.setSectionName(assignment.getSection().getName());
-
-		response.setFacultyId(assignment.getFaculty().getId());
-		response.setFacultyCode(assignment.getFaculty().getFacultyCode());
-		response.setFacultyName(assignment.getFaculty().getName());
-
-		response.setSemester(assignment.getSemester());
-		response.setAcademicYear(assignment.getAcademicYear());
-		response.setActive(assignment.getActive());
-
-		return response;
+	@Override
+	public List<SubjectFacultySectionAssignmentResponse> getAssignmentsByFacultyId(String id) {
+		Faculty faculty = facultyRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Faculty not found"));
+		
+		List<SubjectFacultySectionAssignment> assignments = assignmentRepository.findByFacultyId(id);
+		return assignments.stream().map(assignment -> {
+			return mapToDTO(assignment);
+		}).toList();
+		
 	}
 
 }
