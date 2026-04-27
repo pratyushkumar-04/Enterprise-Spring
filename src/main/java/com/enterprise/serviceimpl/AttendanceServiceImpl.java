@@ -1,8 +1,13 @@
 package com.enterprise.serviceimpl;
 
+import java.time.Clock;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +20,15 @@ import com.enterprise.dto.response.AttedanceSessionResponse;
 import com.enterprise.dto.response.AttendanceDateWiseResponse;
 import com.enterprise.dto.response.AttendanceStudentResponse;
 import com.enterprise.dto.response.AttendanceSubjectWiseResponse;
+import com.enterprise.dto.response.CurrentClassResponse;
 import com.enterprise.dto.response.SubjectAttendanceDetailResponse;
 import com.enterprise.entity.AttendanceSession;
-import com.enterprise.entity.Branch;
 import com.enterprise.entity.Faculty;
 import com.enterprise.entity.Section;
 import com.enterprise.entity.Student;
 import com.enterprise.entity.StudentAttendance;
 import com.enterprise.entity.Subject;
+import com.enterprise.entity.Timetable;
 import com.enterprise.enums.AttendanceStatus;
 import com.enterprise.enums.SubjectStatus;
 import com.enterprise.repository.AttendanceRepository;
@@ -32,6 +38,7 @@ import com.enterprise.repository.SectionRepository;
 import com.enterprise.repository.StudentAttendanceRepository;
 import com.enterprise.repository.StudentRepository;
 import com.enterprise.repository.SubjectRepository;
+import com.enterprise.repository.TimetableRepository;
 import com.enterprise.service.AttendanceService;
 
 @Service
@@ -51,6 +58,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 	private StudentRepository studentRepo;
 	@Autowired
 	private SectionRepository sectionRepo;
+	@Autowired
+	private TimetableRepository timetableRepo;
 
 	AttedanceSessionResponse maptoResponse(AttendanceSession sess) {
 		AttedanceSessionResponse resp = new AttedanceSessionResponse();
@@ -69,29 +78,24 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 	@Override
 	public AttedanceSessionResponse createSession(AttendanceSessionRequest req) {
-		Branch branch = branchRepo.findById(req.getBranchId())
-				.orElseThrow(() -> new RuntimeException("No Such Branch found"));
-		Faculty faculty = faculyRepo.findById(req.getFacultyId())
-				.orElseThrow(() -> new RuntimeException("No such Faculty Exists"));
-		Subject subject = subjectRepo.findById(req.getSubjectId())
-				.orElseThrow(() -> new RuntimeException("No such Subject found"));
-		Section section = sectionRepo.findById(req.getSection())
-				.orElseThrow(() -> new RuntimeException("No Such Section found"));
+		Timetable entry = timetableRepo.findById(req.getTimetableEntryId())
+				.orElseThrow(() -> new RuntimeException("No Such Class Exists in Timetable"));
+		Faculty faculty = entry.getFaculty();
 
 		AttendanceSession session = new AttendanceSession();
-		session.setBranch(branch);
-		session.setSubject(subject);
-		session.setFaculty(faculty);
+		session.setTimetableEntry(entry);
 		session.setDate(req.getDate());
-		session.setEndTime(req.getEnd());
-		session.setLectureNum(req.getLecNumber());
-		session.setStartTime(req.getStart());
-		session.setSemester(req.getSem());
-		session.setSection(section);
-
-		AttendanceSession createdsession = sessionRepo.save(session);
-
-		return maptoResponse(createdsession);
+		session.setFaculty(faculty);
+		session.setBranch(entry.getBranch());
+		session.setSubject(entry.getSubject());
+		session.setSection(entry.getSection());
+		session.setSemester(entry.getSection().getSemester());
+		session.setLectureNum(req.getLectureNum());
+		session.setStartTime(entry.getStartTime());
+		session.setEndTime(entry.getEndTime());
+		session.setAttendanceMarked(false);
+		AttendanceSession createdSession = sessionRepo.save(session);
+		return maptoResponse(createdSession);
 	}
 
 	@Override
@@ -134,6 +138,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 			resp.setStudentId(stu.getId());
 			resp.setRollNumber(stu.getRollNumber());
 			resp.setName(stu.getName());
+
+			resp.setAdmissionNumber(stu.getAdmissionNumber());
+			resp.setPhotoUrl(stu.getImgPath());
 
 			StudentAttendance att = attendanceMap.get(stu.getId());
 
@@ -189,8 +196,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	public SubjectAttendanceDetailResponse getSubjectAttendanceDetail(String studentId, String subjectId) {
 		Student student = studentRepo.findById(studentId)
 				.orElseThrow(() -> new RuntimeException("No such Student Exists"));
-		Subject subject = subjectRepo.findById(subjectId)
-				.orElseThrow(() -> new RuntimeException("Subject not found"));
+		Subject subject = subjectRepo.findById(subjectId).orElseThrow(() -> new RuntimeException("Subject not found"));
 		Section section = student.getSection();
 
 		if (!subject.getBranch().getId().equals(section.getBranch().getId())
@@ -218,4 +224,110 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 		return response;
 	}
+
+	@Autowired
+	private Clock clock;
+
+	@Override
+	public CurrentClassResponse getCurrentClass(String facultyId) {
+		return getCurrentClassWithClock(facultyId, clock);
+
+	}
+
+	@Override
+	public CurrentClassResponse getCurrentClassWithClock(String facultyId, Clock customClock) {
+
+		LocalDate today = LocalDate.now(customClock);
+		LocalTime now = LocalTime.now(customClock);
+		DayOfWeek day = (DayOfWeek) today.getDayOfWeek();
+
+		List<Timetable> entries = timetableRepo.findByFacultyIdAndDayOfWeekOrderByStartTimeAsc(facultyId, day);
+
+		Timetable current = entries.stream()
+				.filter(entry -> !now.isBefore(entry.getStartTime()) && now.isBefore(entry.getEndTime())).findFirst()
+				.orElseThrow(() -> new RuntimeException("No current class found"));
+
+		Optional<AttendanceSession> existingSession = sessionRepo.findByTimetableEntryIdAndDate(current.getId(), today);
+
+		Integer lectureNum;
+
+		if (existingSession.isPresent()) {
+			lectureNum = existingSession.get().getLectureNum();
+		} else {
+			long previousLectures = sessionRepo.countBySectionIdAndSubjectId(current.getSection().getId(),
+					current.getSubject().getId());
+
+			lectureNum = (int) previousLectures + 1;
+		}
+
+		CurrentClassResponse response = new CurrentClassResponse();
+
+		response.setTimetableEntryId(current.getId());
+		response.setSubjectName(current.getSubject().getName());
+		response.setSectionName(current.getBranch().getName() + " " + current.getSection().getName());
+		response.setLectureNum(lectureNum);
+		response.setStartTime(current.getStartTime());
+		response.setEndTime(current.getEndTime());
+
+		if (existingSession.isPresent()) {
+			response.setAttendanceMarked(existingSession.get().getAttendanceMarked());
+			response.setSessionId(existingSession.get().getId());
+		} else {
+			response.setAttendanceMarked(false);
+			response.setSessionId(null);
+		}
+
+		return response;
+	}
+
+	@Override
+	public List<CurrentClassResponse> getFacultyClassesForAttendance(String facultyId, LocalDate date) {
+		DayOfWeek day = date.getDayOfWeek();
+
+		List<Timetable> classes = timetableRepo.findByFaculty_IdAndDayOfWeekOrderByStartTimeAsc(facultyId, day);
+
+		return classes.stream().map(timetable -> {
+
+			Optional<AttendanceSession> existingSession = sessionRepo.findByTimetableEntryIdAndDate(timetable.getId(),
+					date);
+
+			Integer lectureNum;
+
+			if (existingSession.isPresent()) {
+				lectureNum = existingSession.get().getLectureNum();
+			} else {
+				long previousCount = sessionRepo.countBySectionIdAndSubjectId(timetable.getSection().getId(),
+						timetable.getSubject().getId());
+
+				lectureNum = (int) previousCount + 1;
+			}
+
+			CurrentClassResponse response = new CurrentClassResponse();
+
+			response.setTimetableEntryId(timetable.getId());
+			response.setSubjectName(timetable.getSubject().getName());
+			response.setSectionName(timetable.getSection().getName());
+			response.setStartTime(timetable.getStartTime());
+			response.setEndTime(timetable.getEndTime());
+			response.setSemester(timetable.getSection().getSemester());
+			response.setLectureNum(lectureNum);
+
+			if (existingSession.isPresent()) {
+				response.setAttendanceMarked(existingSession.get().getAttendanceMarked());
+				response.setSessionId(existingSession.get().getId());
+			} else {
+				response.setAttendanceMarked(false);
+				response.setSessionId(null);
+			}
+
+			return response;
+		}).toList();
+	}
+
+	@Override
+	public List<CurrentClassResponse> getSessionsByFacuty(String facultyId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

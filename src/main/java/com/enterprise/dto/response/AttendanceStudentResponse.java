@@ -7,6 +7,22 @@ public class AttendanceStudentResponse {
     private String attendanceId;
     private Boolean present;
     private Boolean editable;
+    private String admissionNumber;
+    private String photoUrl;
+    
+    
+	public String getAdmissionNumber() {
+		return admissionNumber;
+	}
+	public void setAdmissionNumber(String admissionNumber) {
+		this.admissionNumber = admissionNumber;
+	}
+	public String getPhotoUrl() {
+		return photoUrl;
+	}
+	public void setPhotoUrl(String photoUrl) {
+		this.photoUrl = photoUrl;
+	}
 	public String getStudentId() {
 		return studentId;
 	}

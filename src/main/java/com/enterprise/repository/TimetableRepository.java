@@ -1,10 +1,13 @@
 package com.enterprise.repository;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.enterprise.entity.AttendanceSession;
 import com.enterprise.entity.Timetable;
 
 public interface TimetableRepository extends JpaRepository<Timetable,String>{
@@ -35,4 +38,21 @@ public interface TimetableRepository extends JpaRepository<Timetable,String>{
 	            DayOfWeek dayOfWeek,
 	            Integer periodNumber
 	    );
+	    
+
+	    List<Timetable> findByFacultyIdAndDayOfWeekOrderByStartTimeAsc(String facultyId, DayOfWeek dayOfWeek);
+	    List<Timetable> findByFaculty_IdAndDayOfWeekOrderByStartTimeAsc(
+	            String facultyId,
+	            DayOfWeek day
+	    );
+//	    
+//	    Optional<AttendanceSession> findByIdAndDate(
+//	            String Id,
+//	            LocalDate date
+//	    );
+//
+//	    long countBySectionIdAndSubjectId(
+//	            String sectionId,
+//	            String subjectId
+//	    );
 }

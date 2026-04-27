@@ -1,6 +1,11 @@
 package com.enterprise.controller;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.enterprise.dto.request.AttendanceSessionRequest;
@@ -31,7 +38,7 @@ public class AttendanceController {
 	
 	@PreAuthorize("hasRole('FACULTY')")
 	@PostMapping("/session")
-	private ResponseEntity<?> createSession(@RequestBody AttendanceSessionRequest req) {
+	public ResponseEntity<?> createSession(@RequestBody AttendanceSessionRequest req) {
 		try {
 			return ResponseEntity.status(HttpStatus.CREATED).body(sessionService.createSession(req));
 		} catch (Exception e) {
@@ -57,7 +64,7 @@ public class AttendanceController {
 
 	@PreAuthorize("hasRole('FACULTY')")
 	@PostMapping("/mark")
-	private ResponseEntity<?> markAttendance(@RequestBody MarkAttendanceRequest req) {
+	public  ResponseEntity<?> markAttendance(@RequestBody MarkAttendanceRequest req) {
 		try {
 			sessionService.markAttendance(req);
 			return ResponseEntity.status(HttpStatus.CREATED).body("Marked");
@@ -94,6 +101,46 @@ public class AttendanceController {
 			@PathVariable String studentId) {
 
 		return ResponseEntity.ok(sessionService.getSubjectAttendanceDetail(studentId, subjectId));
+	}
+
+	
+	@PreAuthorize("hasRole('FACULTY')")
+	@GetMapping("/current-class/{facultyId}")
+	public ResponseEntity<?> getCurrentClass(
+	        @PathVariable String facultyId,
+	        @RequestHeader(value = "X-Debug-Time", required = false) String debugTime) {
+
+	    try {
+
+	        if (debugTime != null) {
+	            LocalDateTime dt = LocalDateTime.parse(debugTime);
+
+	            // override clock dynamically
+	            Clock fixedClock = Clock.fixed(
+	                    dt.atZone(ZoneId.systemDefault()).toInstant(),
+	                    ZoneId.systemDefault()
+	            );
+
+	            return ResponseEntity.ok(sessionService.getCurrentClassWithClock(facultyId, fixedClock));
+	        }
+
+	        return ResponseEntity.ok(sessionService.getCurrentClass(facultyId));
+
+	    } catch (Exception e) {
+	    	return ResponseEntity.ok(Map.of(
+	    		    "hasCurrentClass", false));
+	    }
+	}
+	
+	@PreAuthorize("hasRole('FACULTY')")
+	@GetMapping("/faculty/{facultyId}/classes")
+	public ResponseEntity<?> getFacultyClassesForAttendance(
+	        @PathVariable String facultyId,
+	        @RequestParam LocalDate date) {
+
+	    return ResponseEntity.ok(
+	            sessionService.getFacultyClassesForAttendance(facultyId, date)
+	    );
 	}
 
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -34,6 +35,13 @@ public class AttendanceSession {
 	
 	private LocalTime startTime;
 	private LocalTime endTime;
+	
+	@ManyToOne(optional = false)
+    @JoinColumn(name = "timetable_entry_id")
+	private Timetable timetableEntry;
+	
+	
+    private Boolean attendanceMarked = false;
 	
 	
 	public String getId() {
@@ -96,6 +104,20 @@ public class AttendanceSession {
 	public void setSection(Section section) {
 		this.section = section;
 	}
+	public Timetable getTimetableEntry() {
+		return timetableEntry;
+	}
+	public void setTimetableEntry(Timetable timetableEntry) {
+		this.timetableEntry = timetableEntry;
+	}
+	public Boolean getAttendanceMarked() {
+		return attendanceMarked;
+	}
+	public void setAttendanceMarked(Boolean attendanceMarked) {
+		this.attendanceMarked = attendanceMarked;
+	}
+	
+	
 	
 	
 	
