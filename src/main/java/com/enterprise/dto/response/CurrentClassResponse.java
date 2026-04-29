@@ -13,8 +13,24 @@ public class CurrentClassResponse {
 	private boolean attendanceMarked;
 	private String sessionId;
 	private Integer Semester;
+	private String subjectId;
+	private String sectionId;
 	
-	
+	public String getSubjectId() {
+		return subjectId;
+	}
+
+	public void setSubjectId(String subjectId) {
+		this.subjectId = subjectId;
+	}
+
+	public String getSectionId() {
+		return sectionId;
+	}
+
+	public void setSectionId(String sectionId) {
+		this.sectionId = sectionId;
+	}
 
 	public Integer getSemester() {
 		return Semester;

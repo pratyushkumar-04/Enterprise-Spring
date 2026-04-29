@@ -18,9 +18,13 @@ import com.enterprise.dto.request.MarkAttendanceRequest;
 import com.enterprise.dto.request.StudentAttendanceRequest;
 import com.enterprise.dto.response.AttedanceSessionResponse;
 import com.enterprise.dto.response.AttendanceDateWiseResponse;
+import com.enterprise.dto.response.AttendanceOverviewResponse;
 import com.enterprise.dto.response.AttendanceStudentResponse;
 import com.enterprise.dto.response.AttendanceSubjectWiseResponse;
+import com.enterprise.dto.response.AttendanceSummaryDTO;
 import com.enterprise.dto.response.CurrentClassResponse;
+import com.enterprise.dto.response.FacultySessions;
+import com.enterprise.dto.response.StudentAttendanceSummaryDTO;
 import com.enterprise.dto.response.SubjectAttendanceDetailResponse;
 import com.enterprise.entity.AttendanceSession;
 import com.enterprise.entity.Faculty;
@@ -116,6 +120,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 			attendanceRepo.save(sa);
 		}
+		session.setAttendanceMarked(true);
+		
+		sessionRepo.save(session);
 
 	}
 
@@ -311,6 +318,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 			response.setEndTime(timetable.getEndTime());
 			response.setSemester(timetable.getSection().getSemester());
 			response.setLectureNum(lectureNum);
+			response.setSubjectId(timetable.getSubject().getId());
+			response.setSectionId(timetable.getSection().getId());
 
 			if (existingSession.isPresent()) {
 				response.setAttendanceMarked(existingSession.get().getAttendanceMarked());
@@ -325,9 +334,103 @@ public class AttendanceServiceImpl implements AttendanceService {
 	}
 
 	@Override
-	public List<CurrentClassResponse> getSessionsByFacuty(String facultyId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public List<FacultySessions> getFacultySessions(String facultyId, LocalDate fromDate, LocalDate toDate) {
+		List<AttendanceSession> sessions;
 
+		if (fromDate != null && toDate != null) {
+			sessions = sessionRepo.findByFacultyIdAndDateBetweenOrderByDateDesc(facultyId, fromDate, toDate);
+		} else {
+			sessions = sessionRepo.findByFacultyIdOrderByDateDesc(facultyId);
+		}
+
+		return sessions.stream().map(session -> {
+
+			FacultySessions resp = new FacultySessions();
+
+			resp.setSessionId(session.getId());
+			resp.setDate(session.getDate());
+
+			resp.setSubjectName(session.getSubject().getName());
+			resp.setSectionName(session.getSection().getName());
+
+			resp.setLectureNum(session.getLectureNum());
+
+			resp.setStartTime(session.getStartTime());
+			resp.setEndTime(session.getEndTime());
+
+			resp.setAttendanceMarked(session.getAttendanceMarked());
+			resp.setSemester(session.getSemester());
+			resp.setBranch(session.getBranch().getCode());
+
+			return resp;
+
+		}).toList();
+
+}
+
+	@Override
+	public AttendanceOverviewResponse getStudentAttendanceSummary(String subjectId, String sectionId) {
+		Subject subject = subjectRepo.findById(subjectId)
+	            .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+	    Section section = sectionRepo.findById(sectionId)
+	            .orElseThrow(() -> new RuntimeException("Section not found"));
+
+	    List<Student> students = studentRepo
+	            .findBySection_IdOrderByRollNumberAsc(sectionId);
+
+	    List<StudentAttendanceSummaryDTO> studentDTOs = new ArrayList<>();
+
+	    long totalClasses = sessionRepo.countBySectionIdAndSubjectId(sectionId, subjectId);
+
+	    long totalPercentageSum = 0;
+	    long below75 = 0;
+
+	    for (Student student : students) {
+
+	        long total = attendanceRepo
+	                .countByStudentIdAndSession_Subject_Id(
+	                        student.getId(), subjectId);
+
+	        long present = attendanceRepo
+	                .countByStudentIdAndSession_Subject_IdAndStatus(
+	                        student.getId(), subjectId, AttendanceStatus.PRESENT);
+
+	        long absent = total - present;
+
+	        double percentage = total == 0 ? 0 : (present * 100.0) / total;
+
+	        if (percentage < 75) below75++;
+
+	        totalPercentageSum += percentage;
+
+	        StudentAttendanceSummaryDTO dto = new StudentAttendanceSummaryDTO();
+
+	        dto.setStudentId(student.getId());
+	        dto.setName(student.getName());
+	        dto.setRollNumber(student.getRollNumber());
+
+	        dto.setPresentCount(present);
+	        dto.setAbsentCount(absent);
+	        dto.setTotalClasses(total);
+
+	        dto.setPercentage(Math.round(percentage * 100.0) / 100.0);
+
+	        studentDTOs.add(dto);
+	    }
+
+	    double avgAttendance = students.isEmpty() ? 0 :
+	            totalPercentageSum / students.size();
+
+	    AttendanceSummaryDTO summary = new AttendanceSummaryDTO();
+
+	    summary.setSubjectName(subject.getName());
+	    summary.setSectionName(section.getName());
+
+	    summary.setTotalClasses(totalClasses);
+	    summary.setAverageAttendance(Math.round(avgAttendance * 100.0) / 100.0);
+	    summary.setBelow75Count(below75);
+
+	    return new AttendanceOverviewResponse(summary, studentDTOs);
+	}
 }

@@ -1,18 +1,25 @@
 package com.enterprise.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.enterprise.entity.AttendanceSession;
 
-public interface AttendanceRepository extends JpaRepository<AttendanceSession, String>{
-	
+public interface AttendanceRepository extends JpaRepository<AttendanceSession, String> {
+
 	Optional<AttendanceSession> findByTimetableEntryIdAndDate(String timetableEntryId, LocalDate date);
 
 	boolean existsByTimetableEntryIdAndDate(String timetableEntryId, LocalDate date);
 
-    long countBySectionIdAndSubjectId(String sectionId, String subjectId);
+	long countBySectionIdAndSubjectId(String sectionId, String subjectId);
 
+	List<AttendanceSession> findByFaculty_Id(String facultyId);
+
+	List<AttendanceSession> findByFacultyIdOrderByDateDesc(String facultyId);
+
+	List<AttendanceSession> findByFacultyIdAndDateBetweenOrderByDateDesc(String facultyId, LocalDate fromDate,
+			LocalDate toDate);
 }
