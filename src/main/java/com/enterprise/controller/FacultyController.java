@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,8 +52,8 @@ public class FacultyController {
 	}
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
-	public ResponseEntity<List<FacultyResponse>> getAllFaculties(){	
-		return ResponseEntity.ok(facultyService.getAllFaculties());
+	public ResponseEntity<Page<FacultyResponse>> getAllFaculties(Pageable pageable){
+		return ResponseEntity.ok(facultyService.getAllFaculties(pageable));
 	}
 	
 	@GetMapping("/{Id}")

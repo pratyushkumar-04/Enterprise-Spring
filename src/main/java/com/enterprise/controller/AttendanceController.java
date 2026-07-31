@@ -57,9 +57,15 @@ public class AttendanceController {
 
 	@PreAuthorize("hasRole('FACULTY')")
 	@GetMapping("{sessionId}/students")
-	public ResponseEntity<List<AttendanceStudentResponse>> getStudentsForAttendance(@PathVariable String sessionId) {
+	public ResponseEntity<?> getStudentsForAttendance(@PathVariable String sessionId) {
 
-		return ResponseEntity.ok(sessionService.getStudentsForAttendance(sessionId));
+		try {
+			return ResponseEntity.ok(sessionService.getStudentsForAttendance(sessionId));
+
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+		
 	}
 
 	// faculty role

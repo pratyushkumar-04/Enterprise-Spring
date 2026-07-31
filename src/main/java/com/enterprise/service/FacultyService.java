@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enterprise.dto.request.ChangePasswordRequest;
@@ -18,7 +20,7 @@ public interface FacultyService {
 
 	FacultyResponse addFaculty(FacultyRequest facreq, MultipartFile image, MultipartFile cv);
 
-	List<FacultyResponse> getAllFaculties();
+	Page<FacultyResponse> getAllFaculties(Pageable pageable);
 
 	FacultyResponse getFacultyById(String Id);
 

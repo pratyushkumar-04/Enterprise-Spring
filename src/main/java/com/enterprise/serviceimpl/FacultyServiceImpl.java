@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -173,12 +175,9 @@ public class FacultyServiceImpl implements FacultyService {
 	}
 
 	@Override
-	public List<FacultyResponse> getAllFaculties() {
-		List<Faculty> faculties = facultyRepo.findAll();
-
-		return faculties.stream().map(faculty -> {
-			return maptoResponse(faculty);
-		}).toList();
+	public Page<FacultyResponse> getAllFaculties(Pageable pageable) {
+		Page<Faculty> faculties = facultyRepo.findAll(pageable);
+		return faculties.map(this::maptoResponse);
 	}
 
 	@Override

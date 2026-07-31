@@ -27,7 +27,6 @@ import com.enterprise.repository.TimetableRepository;
 import com.enterprise.service.TimetableService;
 
 @Service
-//@RequiredArgsConstructor
 public class TimetableServiceImpl implements TimetableService {
 
 	@Autowired
@@ -88,7 +87,7 @@ public class TimetableServiceImpl implements TimetableService {
         dto.setSection(entry.getSection().getName());
 
         dto.setSubjectId(entry.getSubject().getId());
-        dto.setSubjectName(entry.getSubject().getName());
+        dto.setSubjectName(entry.getSubject().getCode());
         dto.setSubjectCode(entry.getSubject().getCode());
 
         dto.setFacultyId(entry.getFaculty().getId());

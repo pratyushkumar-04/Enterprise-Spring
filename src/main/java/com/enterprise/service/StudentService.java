@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +23,7 @@ public interface StudentService {
 	        MultipartFile adhaar,
 	        MultipartFile tenth,
 	        MultipartFile twelfth);
-	List<StudentResponse> getAllstudents();
+	Page<StudentResponse> getAllstudents(Pageable pageable);
 	StudentResponse getStudentById(String Id);
 	StudentResponse getStudentByAdmnum(String admnum);
 	List<StudentResponse> getStudentsByBranch(String branchId);

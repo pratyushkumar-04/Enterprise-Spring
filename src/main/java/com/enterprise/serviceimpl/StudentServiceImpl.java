@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -246,11 +248,9 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public List<StudentResponse> getAllstudents() {
-		List<Student> students = studentRepo.findAll();
-		return students.stream().map(student -> {
-			return mapToResponse(student);
-		}).toList();
+	public Page<StudentResponse> getAllstudents(Pageable pageable) {
+		Page<Student> students = studentRepo.findAll(pageable);
+		return students.map(this::mapToResponse);
 	}
 
 	@Override
