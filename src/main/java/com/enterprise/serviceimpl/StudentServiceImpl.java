@@ -9,12 +9,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import com.enterprise.specification.StudentSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -248,8 +250,37 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public Page<StudentResponse> getAllstudents(Pageable pageable) {
-		Page<Student> students = studentRepo.findAll(pageable);
+	public Page<StudentResponse> getAllstudents(
+			Pageable pageable,
+			String search,
+			String departmentId,
+			String courseId,
+			String branchId,
+			Integer semester,
+			StudentStatus status
+	) {
+		Specification<Student> spec = (root, query, cb) -> cb.conjunction();
+
+		if (departmentId != null && !departmentId.isBlank()) {
+			spec = spec.and(StudentSpecification.hasDepartment(departmentId));
+		}
+		if (courseId != null && !courseId.isBlank()) {
+			spec = spec.and(StudentSpecification.hasCourse(courseId));
+		}
+		if (branchId != null && !branchId.isBlank()) {
+			spec = spec.and(StudentSpecification.hasBranch(branchId));
+		}
+		if (semester != null) {
+			spec = spec.and(StudentSpecification.hasSemester(semester));
+		}
+		if (status != null) {
+			spec = spec.and(StudentSpecification.hasStatus(status));
+		}
+		if (search != null && !search.isBlank()) {
+			spec = spec.and(StudentSpecification.containsSearch(search));
+		}
+		Page<Student> students = studentRepo.findAll(spec, pageable);
+
 		return students.map(this::mapToResponse);
 	}
 

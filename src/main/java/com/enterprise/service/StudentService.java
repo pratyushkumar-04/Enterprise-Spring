@@ -23,7 +23,15 @@ public interface StudentService {
 	        MultipartFile adhaar,
 	        MultipartFile tenth,
 	        MultipartFile twelfth);
-	Page<StudentResponse> getAllstudents(Pageable pageable);
+	Page<StudentResponse> getAllstudents(
+			Pageable pageable ,
+			String search,
+			String departmentId,
+			String courseId,
+			String branchId,
+			Integer semester,
+			StudentStatus status
+	);
 	StudentResponse getStudentById(String Id);
 	StudentResponse getStudentByAdmnum(String admnum);
 	List<StudentResponse> getStudentsByBranch(String branchId);

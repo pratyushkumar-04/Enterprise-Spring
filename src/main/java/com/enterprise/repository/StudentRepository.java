@@ -3,14 +3,19 @@ package com.enterprise.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import com.enterprise.entity.Student;
 import com.enterprise.enums.StudentStatus;
 
 
-public interface StudentRepository extends JpaRepository<Student, String>{
+public interface StudentRepository extends
+        JpaRepository<Student, String>,
+        JpaSpecificationExecutor<Student> {
 
     Student findTopByAdmissionNumberStartingWithOrderByAdmissionNumberDesc(String prefix);
     Optional<Student> findByAdmissionNumber(String admissionNumber);
@@ -24,6 +29,12 @@ public interface StudentRepository extends JpaRepository<Student, String>{
     @Query("SELECT MAX(s.rollNumber) FROM Student s WHERE s.section.id = :sectionId")
     Integer findMaxRollNumberBySection(String sectionId);
 
+    Page<Student> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrAdmissionNumberContainingIgnoreCase(
+            String name,
+            String email,
+            String admissionNo,
+            Pageable pageable
+    );
 
 
 }
